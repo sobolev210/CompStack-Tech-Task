@@ -9,7 +9,7 @@ from src.settings import settings
 from src.services.exceptions import BaseServiceException
 
 
-class StatisticsCounter:
+class DatasetManager:
     _df: pd.DataFrame | None = None
     _instance = None
 
@@ -104,35 +104,14 @@ class StatisticsCounter:
 
         return result
 
-
-    # todo remove
-    # @lru_cache(maxsize=64)
-    # def perform_statistics_count(self, columns: tuple[str, ...], filter_conditions: dict | None = None) -> dict:
-    #     print("Counting statistics")
-    #     df = self._df
-    #     if filter_conditions is not None:
-    #         df = self._filter_dataset(filter_conditions)
-    #     return self._compute_statistics(df, columns)
-    #
-    # def compute_summary_statistics(self, columns: list[str], filter_conditions: dict | None) -> dict:
-    #     # Converting lists to tuples, so they can be cached by lru_cache
-    #     columns = tuple(columns)
-    #     if filter_conditions is not None:
-    #         for key, value in filter_conditions.items():
-    #             if isinstance(value, list):
-    #                 filter_conditions[key] = tuple(value)
-    #     # Here, I call the additional internal function, so results of it can be cached
-    #     return self.perform_statistics_count(columns, filter_conditions)
-
     def compute_summary_statistics(self, columns: list[str], filter_conditions: dict | None) -> dict:
         df = self._df
         if filter_conditions is not None:
             df = self._filter_dataset(filter_conditions)
         return self._compute_statistics(df, columns)
 
-
-if __name__ == "__main__":
-    statistics_counter = StatisticsCounter()
-    statistics_counter.load_dataset("../../sales_data.csv")
-    df = statistics_counter._df
-    df
+    def get_filtered_dataset(self, filter_conditions: dict | None) -> list[dict]:
+        df = self._df
+        if filter_conditions is not None:
+            df = self._filter_dataset(filter_conditions)
+        return df.sort_values("date").to_dict(orient="records")
