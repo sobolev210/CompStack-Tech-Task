@@ -61,8 +61,7 @@ You can leave part on the right unchanged
 
 For _price_per_unit_, I decided to count statistics taking into account _quantity_sold_, i.e. counting weighted mean, 
 median, etc. with _quantity_sold_ values being the weights. 
-This statistics seems to be more valuable, comparing to approach with not taking _quantity_sold_ into account
-- business can get the average price of sold units and understand if people buy expensive units or not.
+This statistics seems to be more valuable, comparing to approach with not taking _quantity_sold_ into account - business can get the average price of sold units and understand if people buy expensive units or not.
 
 For _quantity_sold_, I decided to count statistics, e.g. mean, per sale. This way, e.g., we know the average price of unit sold,
 we know the average quantity sold, and we can predict our revenue based on predicted amount of sales
