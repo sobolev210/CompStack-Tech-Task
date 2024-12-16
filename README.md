@@ -51,7 +51,7 @@ Here, you would need to mount your dataset file, so it's available
 inside docker container - it can be done with `-v` flag.
 Full command example:
 ```
-docker run -p 8000:8000 -v ./sales_data.csv:/app/sales_data.csv statistical_summaries
+docker run --name statistical_summaries -p 8000:8000 -v ./sales_data.csv:/app/sales_data.csv statistical_summaries
 ```
 Here, in value for `-v` flag, part before ":" is path to the dataset on the local machine. 
 You can leave part on the right unchanged
