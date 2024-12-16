@@ -120,8 +120,3 @@ class DatasetManager:
             df = self._filter_dataset(filter_conditions)
         return self._compute_statistics(df, columns)
 
-    def get_filtered_dataset(self, filter_conditions: dict | None) -> list[dict]:
-        df = self._df
-        if filter_conditions is not None:
-            df = self._filter_dataset(filter_conditions)
-        return df.sort_values("date").to_dict(orient="records")

@@ -1,2 +1,0 @@
-class BaseServiceException(Exception):
-    pass
