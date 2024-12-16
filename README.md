@@ -3,6 +3,13 @@
 This repository contains results of performing Interview Task for 
 "Python Application Engineer" position
 
+## Assumptions made
+- Each row in a dataset contains data for one sale
+- The dataset is relatively small, and can fit into RAM. There is no huge increase in amount of data 
+expected within 1-2 years. For a bigger dataset, chunk-based approach can be used, or saving dataset to DB can be considered
+- The RPS limit is relatively small, e.g. 10 RPS/second. For bigger RPS, gunicorn with Uvicorn workers can be considered
+
+
 ## How to run
 
 
@@ -50,6 +57,17 @@ Here, in value for `-v` flag, part before ":" is path to the dataset on the loca
 You can leave part on the right unchanged
 
 
+## Reasoning behind counting statistics summary with current approach
+
+For _price_per_unit_, I decided to count statistics taking into account _quantity_sold_, i.e. counting weighted mean, 
+median, etc. with _quantity_sold_ values being the weights. 
+This statistics seems to be more valuable, comparing to approach with not taking _quantity_sold_ into account
+- business can get the average price of sold units and understand if people buy expensive units or not.
+
+For _quantity_sold_, I decided to count statistics, e.g. mean, per sale. This way, e.g., we know the average price of unit sold,
+we know the average quantity sold, and we can predict our revenue based on predicted amount of sales
+
+
 ## Examples of requests and responses
 
 _Columns provided, no filters provided_
@@ -76,10 +94,10 @@ Response
     "percentile_75": 38.25
   },
   "price_per_unit": {
-    "mean": 68.53,
-    "median": 44.99,
+    "mean": 66.8,
+    "median": 39.99,
     "mode": 49.99,
-    "std_dev": 67.36,
+    "std_dev": 65.57,
     "percentile_25": 25.99,
     "percentile_75": 89.99
   }
@@ -121,12 +139,12 @@ Response
     "percentile_75": 38
   },
   "price_per_unit": {
-    "mean": 26.19,
+    "mean": 30.49,
     "median": 34.99,
-    "mode": 34.99,
-    "std_dev": 18.66,
+    "mode": 49.99,
+    "std_dev": 18.01,
     "percentile_25": 12.99,
-    "percentile_75": 39.99
+    "percentile_75": 49.99
   }
 }
 ```

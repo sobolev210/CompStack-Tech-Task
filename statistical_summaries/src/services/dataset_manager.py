@@ -30,17 +30,10 @@ class DatasetManager:
                 cls._df = None
                 return
 
-            try:
-                cls._df["date"] = pd.to_datetime(cls._df["date"], format="%Y-%m-%d")
-            except ValueError as e:
-                # todo probably exclude such rows, instead of not loading the dataset
-                logger.error(f"Could not convert values in 'date' column to datetime", exc_info=e)
-                cls._df = None
-                return
-
             # What can be improved:
             # - add validation that values for quantity_sold and price_per_unit are > 0
             # - convert product_id to number
+            cls._df["date"] = pd.to_datetime(cls._df["date"], format="%Y-%m-%d", errors='coerce')
             cls._df["quantity_sold"] = pd.to_numeric(cls._df["quantity_sold"], errors="coerce")
             cls._df["price_per_unit"] = pd.to_numeric(cls._df["price_per_unit"], errors="coerce")
 
@@ -93,11 +86,12 @@ class DatasetManager:
             column_series = filtered_df[column_name]
             if column_name == "price_per_unit":
                 weights_series = filtered_df["quantity_sold"]
+                std_dev = count_weighted_std(column_series, weights_series)
                 result[column_name] = {
                     "mean": float(round(np.average(column_series, weights=weights_series), 2)),
                     "median": round(count_weighted_median(column_series, weights_series), 2), # assuming that there can be unnecessary level of precision
                     "mode": round(count_weighted_mode(column_series, weights_series), 2), # assuming that there can be unnecessary level of precision
-                    "std_dev": round(count_weighted_std(column_series, weights_series), 2),
+                    "std_dev": round(std_dev, 2) if std_dev is not None else std_dev,
                     "percentile_25": float(
                         round(np.percentile(column_series, 25, weights=weights_series, method="inverted_cdf").min(), 2)
                     ),
@@ -106,11 +100,12 @@ class DatasetManager:
                     ),
                 }
             else:
+                std_dev = column_series.std()
                 result[column_name] = {
                     "mean": float(round(column_series.mean(), 2)),
                     "median": float(round(column_series.median(), 2)), # assuming that there can be unnecessary level of precision
                     "mode": float(round(column_series.mode().min(), 2)), # assuming that there can be unnecessary level of precision
-                    "std_dev": float(round(column_series.std(), 2)),
+                    "std_dev": float(round(std_dev, 2)) if not np.isnan(std_dev) else None,
                     "percentile_25": float(round(np.percentile(column_series, 25), 2)),
                     "percentile_75": float(round(np.percentile(column_series, 75), 2)),
                 }

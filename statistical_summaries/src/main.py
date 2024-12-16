@@ -7,7 +7,6 @@ from src.settings import settings
 from src.services.dataset_manager import DatasetManager
 from src.services.exceptions import BaseServiceException
 from src.schemas.statistical_summary import StatisticalSummaryRequest, ColumnStatistics, FilterConditions
-from src.schemas.filtered_dataset import FilteredDatasetEntry
 
 
 @asynccontextmanager
@@ -33,13 +32,3 @@ def count_dataset_summary(
         )
     except BaseServiceException as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/filtered-dataset/", response_model=list[FilteredDatasetEntry])
-def get_filtered_dataset(
-    filters: FilterConditions | None = None,
-    dataset_manager: DatasetManager = Depends(get_dataset_manager)
-):
-    if not dataset_manager.dataset_available:
-        raise HTTPException(status_code=503, detail="Dataset was not loaded, service unavailable")
-    return dataset_manager.get_filtered_dataset(filters.model_dump() if filters else None)

@@ -21,7 +21,16 @@ def count_weighted_median(values: pd.Series, weights: pd.Series) -> float:
     median_weight = total_weight / 2
 
     # Identify the weighted median
-    weighted_median_value = df.loc[df['cum_weight'] >= median_weight, 'value'].iloc[0]
+    if len(values) % 2 == 0:
+        right_border = df.loc[df['cum_weight'] == median_weight, 'value']
+        if right_border.empty:
+            weighted_median_value = df.loc[df['cum_weight'] >= median_weight, 'value'].iloc[0]
+        else:
+            right_border_value = right_border.iloc[0]
+            left_border_value = df.loc[df['cum_weight'] > median_weight, 'value'].iloc[0]
+            weighted_median_value = (right_border_value + left_border_value) / 2
+    else:
+        weighted_median_value = df.loc[df['cum_weight'] >= median_weight, 'value'].iloc[0]
 
     return weighted_median_value
 
@@ -42,7 +51,9 @@ def count_weighted_mode(values, weights):
     return min(mode_values)
 
 
-def count_weighted_std(values, weights):
+def count_weighted_std(values, weights) -> float | None:
+    if (len(values) == 1 and len(weights) == 1 and weights.iloc[0] == 1) or len(values) == 0:
+        return None
     average = np.average(values, weights=weights)
 
     # Fast and numerically precise:
